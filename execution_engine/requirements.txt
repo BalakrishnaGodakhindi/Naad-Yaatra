@@ -1,0 +1,6 @@
+# For k6, installation is typically a binary download, not via pip.
+# See https://k6.io/docs/getting-started/installation/
+# Adding 'k6' here as a note for environment setup.
+# k6
+
+locustio

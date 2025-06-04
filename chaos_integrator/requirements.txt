@@ -1,0 +1,8 @@
+# Chaos Mesh and LitmusChaos are typically deployed as Kubernetes native applications.
+# Direct pip packages for their core engines are not standard.
+# However, Python clients or SDKs might be used to interact with their APIs.
+# The 'kubernetes' client is often a prerequisite for such tools if they don't bundle it.
+# kubernetes
+
+# pyyaml is useful for parsing experiment definitions if they are in YAML format.
+pyyaml

@@ -1,0 +1,24 @@
+kubernetes:
+  default_namespace: "default"
+  # in_cluster_auth: true # Example for later
+  # kubeconfig_path: "~/.kube/config" # Example for later
+
+test_generation:
+  api_spec_path: "specs/openapi.yaml" # Example path
+  # traffic_log_path: "logs/production_traffic.log" # Example for later
+
+# execution_engine:
+  # default_duration: "60s"
+  # default_vus: 10
+
+# data_analyzer:
+  # report_thresholds:
+    # p95_latency_ms: 500
+    # error_rate_percent: 5
+
+# chaos_integrator:
+  # default_chaos_namespace: "chaos-testing"
+
+# report_hub:
+  # output_directory: "reports/"
+  # elasticsearch_url: "http://localhost:9200"
