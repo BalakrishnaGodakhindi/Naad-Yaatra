@@ -10,7 +10,7 @@ Details about the project will be added here later.
 - Access to a Kubernetes cluster is required for service discovery and will be essential for actual test execution and chaos experiments (though current operations are mostly mock).
 
 ### Dependencies
-- The project is structured into several components, each potentially having its own dependencies defined in a `requirements.txt` file within its directory (e.g., `orchestrator/requirements.txt`, `test_generator/requirements.txt`).
+- The project is structured into several components, each potentially having its own dependencies defined in a `requirements.txt` file within its directory (e.g., `orchestrator/requirements.txt` which includes `kubernetes`, `PyYAML`, and `requests`; `test_generator/requirements.txt`).
 - To install dependencies for a specific component, navigate to its directory and run:
   ```bash
   cd <component_directory>
@@ -46,6 +46,8 @@ test_generation:
 **Explanation**:
 - **`kubernetes.default_namespace`**: The Kubernetes namespace the orchestrator will target for service discovery (e.g., where your microservices are running).
 - **`test_generation.api_spec_path`**: The file path where the orchestrator should look for an API specification file (e.g., an OpenAPI/Swagger definition) to be used by the Test Generator.
+
+**Note on Service Discovery Probing**: The enhanced service discovery attempts to probe discovered services on their ClusterIP and ports (e.g., for `/openapi.json`). This involves making network connections from the orchestrator's execution environment to these services within the Kubernetes cluster. Ensure that network policies or firewalls (if any are unusually restrictive for intra-cluster traffic) allow such connections from where the orchestrator is run to the application pods/services.
 
 Ensure this file is properly formatted YAML.
 
@@ -97,7 +99,7 @@ The orchestrator accepts several command-line options to control its behavior:
 This project is currently in the initial scaffolding phase. While the orchestrator has a functional command-line interface and basic workflow control, many of the core components are still placeholder implementations.
 
 **Key points to note:**
-- **Service Discovery**: Connects to Kubernetes (if accessible and configured) to list services but does not yet generate a detailed test matrix from them.
+- **Service Discovery**: Connects to Kubernetes to list services with detailed information (including labels, annotations, service type, cluster IP, and full port details). It also actively probes services on their ClusterIP and ports to find common API documentation URLs (e.g., OpenAPI/Swagger specs). This involves network connections from the orchestrator to the services.
 - **Test Generator**: Includes placeholder functions. It does not yet parse API specifications (e.g., OpenAPI) or generate complex test scenarios automatically.
 - **Execution Engine**: Simulates test execution by printing messages. It does not yet integrate with actual testing tools like k6 or Locust.
 - **Data Analyzer**: Simulates analysis. It does not yet process real test metrics or perform AI-powered analysis.

@@ -45,18 +45,52 @@ def discover_services(workflow_data: dict):
         namespace = kube_config_settings.get("default_namespace", "default")
 
         logger.info(f"Using namespace from config: '{namespace}' for service discovery.")
-        discovered_endpoints = discover_k8s_services(namespace=namespace)
+        # The actual call to the imported discover_k8s_services
+        # This function now returns a list of dictionaries.
+        retrieved_services = discover_k8s_services(namespace=namespace)
 
-        if discovered_endpoints:
-            logger.info(f"Discovered {len(discovered_endpoints)} service endpoints.")
-            for name, port in discovered_endpoints:
-                logger.debug(f"  - Service: {name}, Port: {port}") # Changed to debug for less verbosity
+        workflow_data["discovered_endpoints"] = retrieved_services # Store the rich data
+
+        if retrieved_services:
+            logger.info(f"Successfully discovered {len(retrieved_services)} services.")
+            for i, service_info in enumerate(retrieved_services):
+                logger.info(f"  Service #{i+1}:")
+                logger.info(f"    Name:         {service_info.get('name', 'N/A')}")
+                logger.info(f"    Namespace:    {service_info.get('namespace', 'N/A')}")
+                logger.info(f"    Type:         {service_info.get('service_type', 'N/A')}")
+                logger.info(f"    Cluster IP:   {service_info.get('cluster_ip', 'N/A')}")
+
+                ports = service_info.get('ports', [])
+                logger.info(f"    Ports ({len(ports)}):")
+                if ports:
+                    for p in ports:
+                        logger.info(f"      - Port Name: {p.get('name', 'N/A')}, Port: {p.get('port')}, Protocol: {p.get('protocol')}, Target: {p.get('target_port', 'N/A')}")
+                else:
+                    logger.info("      - No ports defined.")
+
+                labels = service_info.get('labels', {})
+                logger.info(f"    Labels ({len(labels)}): {'Yes' if labels else 'No'}")
+                if labels: # Optional: log specific labels if needed, e.g., at DEBUG level
+                    for k,v in labels.items(): logger.debug(f"      - Label: {k}={v}")
+
+                annotations = service_info.get('annotations', {})
+                logger.info(f"    Annotations ({len(annotations)}): {'Yes' if annotations else 'No'}")
+                if annotations: # Optional: log specific annotations if needed, e.g., at DEBUG level
+                     for k,v in annotations.items(): logger.debug(f"      - Annotation: {k}={v}")
+
+                api_docs = service_info.get('api_doc_urls', [])
+                logger.info(f"    API Doc URLs ({len(api_docs)}):")
+                if api_docs:
+                    for url in api_docs:
+                        logger.info(f"      - {url}")
+                else:
+                    logger.info("      - No API docs found by probing or probing skipped.")
         else:
-            logger.info("No service endpoints discovered or an error occurred during discovery call.")
-        workflow_data["discovered_endpoints"] = discovered_endpoints
+            logger.info("No service endpoints discovered or an error occurred during the k8s call.")
+
         logger.info("Service discovery completed.")
     except Exception as e:
-        logger.error(f"Error during service discovery: {e}", exc_info=True)
+        logger.error(f"Error during service discovery orchestration: {e}", exc_info=True)
         workflow_data["discovered_endpoints"] = [] # Ensure it's an empty list on error
         workflow_data["discover_services_error"] = str(e)
 
